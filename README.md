@@ -7,52 +7,113 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# Conexión de Laravel con SQL Server
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 1. Crear un usuario en SQL Server
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Abre SQL Server Management Studio.
+2. Dirígete a `Security > Login`.
+3. Haz clic derecho en `Login` y selecciona `New Login`.
+4. En `Login name` coloca el nombre de usuario deseado.
+5. Establece una contraseña para el usuario.
+6. Asegúrate de que el tipo de autenticación sea `SQL Server Authentication`.
+7. Haz clic en `OK` para crear el usuario.
 
-## Learning Laravel
+## 2. Acceder como SQL Server Authentication
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Usa el nombre de usuario y contraseña que acabas de crear para iniciar sesión en SQL Server con el modo de autenticación de SQL Server.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 3. Crear la base de datos en SQL Server
 
-## Laravel Sponsors
+1. Crea una nueva base de datos llamada `RetinopatiaDB` en SQL Server.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 4. Instalación de las extensiones PDO para SQL Server
 
-### Premium Partners
+Para conectar Laravel con SQL Server, debes instalar las extensiones de PDO para SQL Server. Puedes obtenerlas desde el siguiente enlace:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+[Instalar controladores PDO para SQL Server](https://learn.microsoft.com/en-us/sql/connect/php/download-drivers-php-sql-server?view=sql-server-ver16)
 
-## Contributing
+### Extensiones necesarias:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **php_pdo_sqlsrv_83_ts_x64.dll** (si estás usando PHP 8.3)
+- **php_sqlsrv_83_ts_x64.dll** (si estás usando PHP 8.3)
 
-## Code of Conduct
+### Pasos para la instalación:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. Descarga las extensiones correspondientes a tu versión de PHP desde el enlace anterior.
+2. Coloca los archivos `.dll` descargados en la carpeta `C:\laragon\bin\php\php-8.3.10-Win32-vs16-x64\ext` o en la ubicación donde se encuentren las extensiones de tu PHP.
 
-## Security Vulnerabilities
+## 5. Configurar PHP para habilitar las extensiones
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Abre el archivo `php.ini` de tu instalación de PHP (usualmente se encuentra en `C:\laragon\bin\php\php-8.3.10-Win32-vs16-x64`).
+2. Agrega las siguientes líneas al archivo `php.ini`:
+
+```ini
+extension=php_pdo_sqlsrv_83_ts_x64.dll
+extension=php_sqlsrv_83_ts_x64.dll
+```
+
+3. Guarda los cambios y reinicia el servidor de Laravel (o el servidor web que estés utilizando) para que las extensiones se carguen correctamente.
+
+## 6. Configuración en el archivo `.env` de Laravel
+
+Abre el archivo `.env` en la raíz de tu proyecto Laravel y configura los siguientes parámetros:
+
+```env
+DB_CONNECTION=sqlsrv
+DB_HOST=127.0.0.1
+DB_PORT=1433
+DB_DATABASE=RetinopatiaDB
+DB_USERNAME=dba
+DB_PASSWORD=sql
+```
+
+Asegúrate de reemplazar `dba` y `sql` con el nombre de usuario y la contraseña que hayas configurado en SQL Server.
+
+## 7. Verificación de la conexión a la base de datos
+
+1. Ejecuta el siguiente comando en la terminal para verificar si la conexión a la base de datos se ha establecido correctamente:
+
+```bash
+php artisan migrate
+```
+
+Este comando intentará realizar las migraciones de la base de datos y, si no hay errores, confirmará que la conexión está funcionando correctamente.
+
+## 8. Solución de problemas: Habilitar TCP/IP para SQL Server
+
+Si experimentas problemas de conexión, puede ser que el puerto TCP no esté habilitado en tu instalación de SQL Server. Sigue estos pasos para habilitarlo:
+
+### Habilitar TCP/IP en SQL Server:
+
+1. Presiona `Windows + R` y ejecuta el comando correspondiente según tu versión de SQL Server:
+   - **SQL Server 2022**: `SQLServerManager16.msc`
+   - **SQL Server 2017**: `SQLServerManager14.msc`
+   - **SQL Server 2014**: `SQLServerManager12.msc`
+
+2. En la ventana de **SQL Server Configuration Manager**, ve a `SQL Server Network Configuration > Protocols for <NOMBRE DE TU SQL>`.
+3. Habilita `TCP/IP` y luego haz clic en propiedades.
+4. En la sección `IP Addresses`, bajo `IPAll`, establece el **TCP Port** en `1433`.
+5. Asegúrate de que `SQL Server Browser` esté habilitado en **SQL Server Services**.
+6. Cambia el **Start Mode** de `SQL Server Browser` a `Automatic` y haz clic en `Start` para iniciar el servicio.
+
+### Crear una regla de firewall para permitir el puerto 1433:
+
+1. Abre `Firewall de Windows Defender` y selecciona `Configuración avanzada`.
+2. En `Reglas de entrada`, crea una nueva regla:
+   - Tipo de regla: **Puerto**
+   - Protocolo y puertos: **TCP**, Puertos locales específicos: `1433`
+   - Acción: **Permitir la conexión**
+   - Perfil: Marca todas las opciones (Dominio, Privado, Público)
+   - Nombre: `[W11 EPV] SQL TCP 1433`
+
+Con estos pasos, deberías poder habilitar correctamente el puerto 1433 para la conexión de SQL Server.
+
+## Recursos adicionales
+
+- [Documentación de SQL Server para PHP](https://learn.microsoft.com/en-us/sql/connect/php/?view=sql-server-ver16)
+- [Video tutorial sobre habilitar TCP/IP para SQL Server](https://www.youtube.com/watch?v=wVNPjDeZOhA)
 
 ## License
 
