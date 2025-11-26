@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('first_name', 80);
             $table->string('last_name', 80);
             $table->string('email', 120)->unique();
-            $table->string('password', 200);
+            $table->string('password', 255);
             $table->enum('user_type', ['patient', 'doctor', 'admin']);
         });
 
