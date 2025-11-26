@@ -9,6 +9,8 @@ class MedicalHistory extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'patient_id',
         'created_at',

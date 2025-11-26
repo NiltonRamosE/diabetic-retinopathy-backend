@@ -12,6 +12,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -36,6 +38,6 @@ class User extends Authenticatable
     }
 
     protected $casts = [
-        'password' => 'encrypted',
+        'password' => 'hashed',
     ];
 }

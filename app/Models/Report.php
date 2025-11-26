@@ -9,6 +9,8 @@ class Report extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'report_date',
         'comments',

@@ -9,6 +9,8 @@ class Patient extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'birth_date',
         'dni',
