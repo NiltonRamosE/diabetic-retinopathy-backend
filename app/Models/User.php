@@ -35,10 +35,7 @@ class User extends Authenticatable
         return $this->hasOne(Admin::class, 'user_id');
     }
 
-    protected function casts(): array
-    {
-        return [
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'password' => 'encrypted',
+    ];
 }

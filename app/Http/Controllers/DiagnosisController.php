@@ -2,63 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Diagnosis;
 use Illuminate\Http\Request;
 
 class DiagnosisController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todos los diagnósticos
     public function index()
     {
-        //
+        $diagnoses = Diagnosis::all();
+        return response()->json($diagnoses);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Crear un nuevo diagnóstico
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'description' => 'required|string|max:500',
+            'history_id' => 'required|exists:medical_histories,id',
+            'doctor_id' => 'required|exists:doctors,id',
+        ]);
+
+        $diagnosis = Diagnosis::create($validated);
+
+        return response()->json($diagnosis, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Mostrar un diagnóstico específico
+    public function show($id)
     {
-        //
+        $diagnosis = Diagnosis::find($id);
+
+        if (!$diagnosis) {
+            return response()->json(['error' => 'Diagnosis not found'], 404);
+        }
+
+        return response()->json($diagnosis);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Actualizar un diagnóstico
+    public function update(Request $request, $id)
     {
-        //
+        $diagnosis = Diagnosis::find($id);
+
+        if (!$diagnosis) {
+            return response()->json(['error' => 'Diagnosis not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'description' => 'required|string|max:500',
+            'history_id' => 'required|exists:medical_histories,id',
+            'doctor_id' => 'required|exists:doctors,id',
+        ]);
+
+        $diagnosis->update($validated);
+
+        return response()->json($diagnosis);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Eliminar un diagnóstico
+    public function destroy($id)
     {
-        //
-    }
+        $diagnosis = Diagnosis::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$diagnosis) {
+            return response()->json(['error' => 'Diagnosis not found'], 404);
+        }
+
+        $diagnosis->delete();
+        return response()->json(['message' => 'Diagnosis deleted successfully']);
     }
 }

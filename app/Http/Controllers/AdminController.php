@@ -2,63 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todos los administradores
     public function index()
     {
-        //
+        $admins = Admin::all();
+        return response()->json($admins);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Crear un nuevo administrador
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'position' => 'required|max:100',
+            'responsible_area' => 'required|max:100',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $admin = Admin::create($validated);
+
+        return response()->json($admin, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Mostrar un administrador específico
+    public function show($id)
     {
-        //
+        $admin = Admin::find($id);
+
+        if (!$admin) {
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
+
+        return response()->json($admin);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Actualizar un administrador
+    public function update(Request $request, $id)
     {
-        //
+        $admin = Admin::find($id);
+
+        if (!$admin) {
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'position' => 'required|max:100',
+            'responsible_area' => 'required|max:100',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $admin->update($validated);
+
+        return response()->json($admin);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Eliminar un administrador
+    public function destroy($id)
     {
-        //
-    }
+        $admin = Admin::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$admin) {
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
+
+        $admin->delete();
+        return response()->json(['message' => 'Admin deleted successfully']);
     }
 }

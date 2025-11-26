@@ -2,63 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MedicalHistory;
 use Illuminate\Http\Request;
 
 class MedicalHistoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todos los historiales clínicos
     public function index()
     {
-        //
+        $medicalHistories = MedicalHistory::all();
+        return response()->json($medicalHistories);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Crear un nuevo historial clínico
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'created_at' => 'nullable|date',
+        ]);
+
+        $medicalHistory = MedicalHistory::create($validated);
+
+        return response()->json($medicalHistory, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Mostrar un historial clínico específico
+    public function show($id)
     {
-        //
+        $medicalHistory = MedicalHistory::find($id);
+
+        if (!$medicalHistory) {
+            return response()->json(['error' => 'Medical History not found'], 404);
+        }
+
+        return response()->json($medicalHistory);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Actualizar un historial clínico
+    public function update(Request $request, $id)
     {
-        //
+        $medicalHistory = MedicalHistory::find($id);
+
+        if (!$medicalHistory) {
+            return response()->json(['error' => 'Medical History not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'created_at' => 'nullable|date',
+        ]);
+
+        $medicalHistory->update($validated);
+
+        return response()->json($medicalHistory);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Eliminar un historial clínico
+    public function destroy($id)
     {
-        //
-    }
+        $medicalHistory = MedicalHistory::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$medicalHistory) {
+            return response()->json(['error' => 'Medical History not found'], 404);
+        }
+
+        $medicalHistory->delete();
+        return response()->json(['message' => 'Medical History deleted successfully']);
     }
 }

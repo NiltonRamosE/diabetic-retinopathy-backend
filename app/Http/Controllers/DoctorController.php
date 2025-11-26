@@ -2,63 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doctor;
 use Illuminate\Http\Request;
 
 class DoctorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todos los médicos
     public function index()
     {
-        //
+        $doctors = Doctor::all();
+        return response()->json($doctors);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Crear un nuevo médico
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'cmp' => 'required|unique:doctors,cmp|size:15',
+            'specialty' => 'required|max:80',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $doctor = Doctor::create($validated);
+
+        return response()->json($doctor, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Mostrar un médico específico
+    public function show($id)
     {
-        //
+        $doctor = Doctor::find($id);
+
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor not found'], 404);
+        }
+
+        return response()->json($doctor);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Actualizar un médico
+    public function update(Request $request, $id)
     {
-        //
+        $doctor = Doctor::find($id);
+
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'cmp' => 'required|unique:doctors,cmp,' . $id . '|size:15',
+            'specialty' => 'required|max:80',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $doctor->update($validated);
+
+        return response()->json($doctor);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Eliminar un médico
+    public function destroy($id)
     {
-        //
-    }
+        $doctor = Doctor::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor not found'], 404);
+        }
+
+        $doctor->delete();
+        return response()->json(['message' => 'Doctor deleted successfully']);
     }
 }

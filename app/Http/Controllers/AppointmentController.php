@@ -2,63 +2,80 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todas las citas
     public function index()
     {
-        //
+        $appointments = Appointment::all();
+        return response()->json($appointments);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Crear una nueva cita
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required|date_format:H:i',
+            'reason' => 'nullable|string|max:200',
+            'status' => 'nullable|string|max:50',
+        ]);
+
+        $appointment = Appointment::create($validated);
+
+        return response()->json($appointment, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Mostrar una cita específica
+    public function show($id)
     {
-        //
+        $appointment = Appointment::find($id);
+
+        if (!$appointment) {
+            return response()->json(['error' => 'Appointment not found'], 404);
+        }
+
+        return response()->json($appointment);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Actualizar una cita
+    public function update(Request $request, $id)
     {
-        //
+        $appointment = Appointment::find($id);
+
+        if (!$appointment) {
+            return response()->json(['error' => 'Appointment not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required|date_format:H:i',
+            'reason' => 'nullable|string|max:200',
+            'status' => 'nullable|string|max:50',
+        ]);
+
+        $appointment->update($validated);
+
+        return response()->json($appointment);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Eliminar una cita
+    public function destroy($id)
     {
-        //
-    }
+        $appointment = Appointment::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$appointment) {
+            return response()->json(['error' => 'Appointment not found'], 404);
+        }
+
+        $appointment->delete();
+        return response()->json(['message' => 'Appointment deleted successfully']);
     }
 }

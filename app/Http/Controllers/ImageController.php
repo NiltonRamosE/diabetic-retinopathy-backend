@@ -2,63 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Image;
 use Illuminate\Http\Request;
 
 class ImageController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todas las imágenes
     public function index()
     {
-        //
+        $images = Image::all();
+        return response()->json($images);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Subir una nueva imagen
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'file_name' => 'required|string|max:200',
+            'path' => 'required|string|max:400',
+            'resolution' => 'nullable|string|max:50',
+            'doctor_id' => 'required|exists:doctors,id',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $image = Image::create($validated);
+
+        return response()->json($image, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Mostrar una imagen específica
+    public function show($id)
     {
-        //
+        $image = Image::find($id);
+
+        if (!$image) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+
+        return response()->json($image);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Actualizar una imagen
+    public function update(Request $request, $id)
     {
-        //
+        $image = Image::find($id);
+
+        if (!$image) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'file_name' => 'required|string|max:200',
+            'path' => 'required|string|max:400',
+            'resolution' => 'nullable|string|max:50',
+            'doctor_id' => 'required|exists:doctors,id',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $image->update($validated);
+
+        return response()->json($image);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Eliminar una imagen
+    public function destroy($id)
     {
-        //
-    }
+        $image = Image::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$image) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+
+        $image->delete();
+        return response()->json(['message' => 'Image deleted successfully']);
     }
 }
