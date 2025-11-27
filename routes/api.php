@@ -14,6 +14,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ClasificatorController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -29,4 +30,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('images', ImageController::class);
     Route::resource('diagnoses', DiagnosisController::class);
     Route::resource('reports', ReportController::class);
+    Route::post('/classify-image', [ClasificatorController::class, 'classifyImage']);
 });
