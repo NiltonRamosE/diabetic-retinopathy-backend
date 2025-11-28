@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MedicalHistory;
+use App\Models\Patient;
+
 use Illuminate\Http\Request;
 
 class MedicalHistoryController extends Controller
@@ -37,6 +39,42 @@ class MedicalHistoryController extends Controller
         }
 
         return response()->json($medicalHistory);
+    }
+
+    /**
+     * Mostrar el historial clínico de un paciente por DNI y sus diagnósticos.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showByDni(Request $request)
+    {
+        $request->validate([
+            'dni' => 'required|string|size:8',
+        ]);
+
+        $patient = Patient::where('dni', $request->dni)->first();
+
+        if (!$patient) {
+            return response()->json(['error' => 'Patient not found'], 404);
+        }
+
+        $medicalHistory = $patient->medicalHistory;
+
+        if (!$medicalHistory) {
+            return response()->json(['error' => 'Medical history not found'], 404);
+        }
+
+        $diagnoses = $medicalHistory->diagnoses;
+
+        $diagnosesWithDoctor = $diagnoses->map(function ($diagnosis) {
+            $diagnosis->doctor = $diagnosis->doctor;
+            return $diagnosis;
+        });
+
+        return response()->json([
+            'patient' => $patient,
+        ], 200);
     }
 
     // Actualizar un historial clínico

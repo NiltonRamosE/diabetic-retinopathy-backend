@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('doctors', DoctorController::class);
     Route::resource('admins', AdminController::class);
     Route::resource('medical-histories', MedicalHistoryController::class);
+    Route::post('/medical-histories/showByDni', [MedicalHistoryController::class, 'showByDni']);
     Route::resource('appointments', AppointmentController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('images', ImageController::class);
