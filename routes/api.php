@@ -33,4 +33,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('diagnoses', DiagnosisController::class);
     Route::resource('reports', ReportController::class);
     Route::post('/classify-image', [ClasificatorController::class, 'classifyImage']);
+    Route::post('/generate-report', [ClasificatorController::class, 'generateReport']);
 });
