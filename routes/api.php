@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('appointments', AppointmentController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('images', ImageController::class);
+    Route::get('/diagnoses/patient/{id}', [DiagnosisController::class, 'showByPatientId']);
     Route::resource('diagnoses', DiagnosisController::class);
     Route::resource('reports', ReportController::class);
     Route::post('/classify-image', [ClasificatorController::class, 'classifyImage']);

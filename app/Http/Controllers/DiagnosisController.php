@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Diagnosis;
+use App\Models\Patient;
+
 use Illuminate\Http\Request;
 
 class DiagnosisController extends Controller
@@ -38,6 +40,38 @@ class DiagnosisController extends Controller
         }
 
         return response()->json($diagnosis);
+    }
+
+    /**
+     * Mostrar todos los diagnósticos de un paciente por su ID, incluyendo información derivada como el doctor.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showByPatientId($id)
+    {
+        $patient = Patient::find($id);
+
+        if (!$patient) {
+            return response()->json(['error' => 'Patient not found'], 404);
+        }
+
+        $medicalHistory = $patient->medicalHistory;
+
+        if (!$medicalHistory) {
+            return response()->json(['error' => 'Medical history not found'], 404);
+        }
+
+        $diagnoses = $medicalHistory->diagnoses;
+
+        $diagnosesWithDoctor = $diagnoses->map(function ($diagnosis) {
+            $diagnosis->doctor = $diagnosis->doctor;
+            return $diagnosis;
+        });
+
+        return response()->json([
+            'patient' => $patient,
+        ], 200);
     }
 
     // Actualizar un diagnóstico
